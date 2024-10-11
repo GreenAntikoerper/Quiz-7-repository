@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz mit Bildauswahl</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        img {
+            width: auto; /* Breite automatisch anpassen */
+            max-width: 100%; /* Maximale Breite des Bildes */
+            height: auto; /* Höhe automatisch anpassen */
+            margin: 0 10px;
+            border-radius: 10px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        img:hover {
+            transform: scale(1.05); /* Bild vergrößern bei Hover */
+        }
+        .selected {
+            border: 4px solid green; /* Grüner Rand um das ausgewählte Bild */
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); /* Grüner Schatten */
+            transition: transform 0.2s, border 0.2s; /* Übergangseffekte */
+        }
+        #result {
+            font-size: 1.2em;
+            color: #333;
+            margin: 10px 0;
+        }
+        #restartButton {
+            display: none;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="question">Was ist richtig?</h1>
+    <div class="image-container" id="imageContainer"></div>
+    <div id="result"></div>
+    <div id="imageTitles"></div>
+    <button id="nextButton" style="display:none;">Nächste Frage</button>
+    <button id="restartButton">Quiz neu starten</button>
+
+    <script>
+        const questions = [
+            {
+                question: "Welches Bild zeigt das Washington Capitol?",
+                images: ["2 Washington Kapitol.jpg", "2 Havanna Capitolio.jpg"],
+                correct: 0 // Index des korrekten Bildes
+            },
+            {
+                question: "Welches Bild zeigt die St. Pauls Cathedral?",
+                images: ["3 St. Pauls Cathedral London.jpg", "3 Petersdom Rom.jpg"],
+                correct: 0
+            },
+            {
+                question: "Welches Bild zeigt den Palazzo Pitti Florenz?",
+                images: ["Königsbau der Münchner Residenz.jpg", "Palazzo Pitti Florenz.jpg"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        function loadQuestion() {
+            const questionElement = document.getElementById('question');
+            const imageContainer = document.getElementById('imageContainer');
+            const resultElement = document.getElementById('result');
+            const imageTitlesElement = document.getElementById('imageTitles');
+            const nextButton = document.getElementById('nextButton');
+            const restartButton = document.getElementById('restartButton');
+
+            // Frage und Bilder setzen
+            questionElement.innerText = questions[currentQuestionIndex].question;
+            imageContainer.innerHTML = '';
+            questions[currentQuestionIndex].images.forEach((src, index) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = `Bild ${index + 1}`;
+                img.onclick = () => selectImage(index, src);
+                imageContainer.appendChild(img);
+            });
+
+            resultElement.innerText = '';
+            imageTitlesElement.innerText = '';
+            nextButton.style.display = 'none';
+            restartButton.style.display = 'none';
+        }
+
+        function selectImage(selectedIndex, src) {
+            const resultElement = document.getElementById('result');
+            const imageTitlesElement = document.getElementById('imageTitles');
+            const nextButton = document.getElementById('nextButton');
+            const images = document.querySelectorAll('img');
+
+            // Überprüfung des ausgewählten Bildes
+            const correctIndex = questions[currentQuestionIndex].correct;
+            if (selectedIndex === correctIndex) {
+                resultElement.innerText = 'Richtig!';
+            } else {
+                resultElement.innerText = 'Leider falsch.';
+            }
+
+            // Bildtitel anzeigen
+            imageTitlesElement.innerText = `Du hast "${questions[currentQuestionIndex].images[selectedIndex]}" ausgewählt.`;
+
+            // Alle Bilder zurücksetzen
+            images.forEach(img => img.classList.remove('selected'));
+            // Das ausgewählte Bild hervorheben
+            images[selectedIndex].classList.add('selected');
+
+            // Nächste Frage Button anzeigen
+            nextButton.style.display = 'block';
+        }
+
+        document.getElementById('nextButton').onclick = () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById('question').innerText = 'Quiz beendet!';
+                document.getElementById('imageContainer').innerHTML = '';
+                document.getElementById('result').innerText = '';
+                document.getElementById('imageTitles').innerText = '';
+                document.getElementById('nextButton').style.display = 'none';
+                document.getElementById('restartButton').style.display = 'block';
+            }
+        };
+
+        document.getElementById('restartButton').onclick = () => {
+            currentQuestionIndex = 0;
+            loadQuestion();
+        };
+
+        // Start des Quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
+
